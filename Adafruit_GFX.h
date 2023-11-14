@@ -164,6 +164,15 @@ public:
   /**********************************************************************/
   void setTextWrap(bool w) { wrap = w; }
 
+    /**********************************************************************/
+    /*!
+    @brief  Set whether text that is too long for the screen width should
+            automatically wrap around to the cursor.
+    @param  b  true for wrapping to cursor, false for wrapping to 0.
+    */
+    /**********************************************************************/
+    void setTextWrapToCursor(bool b) { wrap_to_cursor = b; }
+
   /**********************************************************************/
   /*!
     @brief  Enable (or disable) Code Page 437-compatible charset.
@@ -244,6 +253,7 @@ protected:
   uint8_t textsize_y;   ///< Desired magnification in Y-axis of text to print()
   uint8_t rotation;     ///< Display rotation (0 thru 3)
   bool wrap;            ///< If set, 'wrap' text at right edge of display
+  bool wrap_to_cursor;
   bool _cp437;          ///< If set, use correct CP437 charset (default is off)
   GFXfont *gfxFont;     ///< Pointer to special font
 };

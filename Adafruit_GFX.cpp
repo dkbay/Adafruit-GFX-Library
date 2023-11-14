@@ -115,6 +115,7 @@ Adafruit_GFX::Adafruit_GFX(int16_t w, int16_t h) : WIDTH(w), HEIGHT(h) {
   textsize_x = textsize_y = 1;
   textcolor = textbgcolor = 0xFFFF;
   wrap = true;
+  wrap_to_cursor = false;
   _cp437 = false;
   gfxFont = NULL;
 }
@@ -1240,14 +1241,21 @@ void Adafruit_GFX::drawChar(int16_t x, int16_t y, unsigned char c,
 */
 /**************************************************************************/
 size_t Adafruit_GFX::write(uint8_t c) {
+  uint16_t wrap_to_x;
+  if(wrap_to_cursor) {
+    wrap_to_x = cursor_x;
+  } else {
+    wrap_to_x = 0;
+  }
+
   if (!gfxFont) { // 'Classic' built-in font
 
     if (c == '\n') {              // Newline?
-      cursor_x = 0;               // Reset x to zero,
+      cursor_x = wrap_to_x;               // Reset x to zero,
       cursor_y += textsize_y * 8; // advance y one line
     } else if (c != '\r') {       // Ignore carriage returns
       if (wrap && ((cursor_x + textsize_x * 6) > _width)) { // Off right?
-        cursor_x = 0;                                       // Reset x to zero,
+        cursor_x = wrap_to_x;                                       // Reset x to zero,
         cursor_y += textsize_y * 8; // advance y one line
       }
       drawChar(cursor_x, cursor_y, c, textcolor, textbgcolor, textsize_x,
@@ -1258,7 +1266,7 @@ size_t Adafruit_GFX::write(uint8_t c) {
   } else { // Custom font
 
     if (c == '\n') {
-      cursor_x = 0;
+      cursor_x = wrap_to_x;
       cursor_y +=
           (int16_t)textsize_y * (uint8_t)pgm_read_byte(&gfxFont->yAdvance);
     } else if (c != '\r') {
@@ -1270,7 +1278,7 @@ size_t Adafruit_GFX::write(uint8_t c) {
         if ((w > 0) && (h > 0)) { // Is there an associated bitmap?
           int16_t xo = (int8_t)pgm_read_byte(&glyph->xOffset); // sic
           if (wrap && ((cursor_x + textsize_x * (xo + w)) > _width)) {
-            cursor_x = 0;
+            cursor_x = wrap_to_x;
             cursor_y += (int16_t)textsize_y *
                         (uint8_t)pgm_read_byte(&gfxFont->yAdvance);
           }
